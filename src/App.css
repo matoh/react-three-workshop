@@ -1,0 +1,116 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+.example-selector {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.selector-title {
+  color: white;
+  font-size: 1.75rem;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.example-cards {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.example-card {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  text-align: left;
+}
+
+.example-card:hover {
+  transform: translateY(-4px);
+}
+.example-card.active {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-color: white;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+  font-size: 1.125rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.card-description {
+  font-size: 0.875rem;
+  margin: 0;
+  color: inherit;
+}
+
+.canvas-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.rotating-cubes-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.canvas-controls {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-button {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(102, 126, 234, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #667eea;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.control-button:hover {
+  background: rgba(102, 126, 234, 0.9);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.control-button:active {
+  transform: translateY(0);
+}
+
+.control-button.active {
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+  border-color: rgba(76, 175, 80, 1);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.control-button.active:hover {
+  background: rgba(76, 175, 80, 1);
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+}
