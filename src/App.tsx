@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import RotatingCubes from './components/simple/RotatingCubes';
-import SimpleSquare from './components/simple/SimpleSquare';
+import RotatingCubes from './components/RotatingCubes';
+import SimpleSquare from './components/SimpleSquare';
 import './App.css';
-import DodecahedronWithGestures from './components/simple/DodecahedronWithGestures';
+import DodecahedronWithGestures from './components/DodecahedronWithGestures';
+import TorusCubeView from './components/TorusCubeView';
 
-type ExampleComponent = 'rotating-cubes' | 'simple-square' | 'dodecahedron';
+type ExampleComponent = 'rotating-cubes' | 'simple-square' | 'dodecahedron' | 'torus-cube-view';
 
 interface Example {
   id: ExampleComponent;
@@ -28,15 +29,20 @@ const examples: Example[] = [
   },
   {
     id: 'dodecahedron',
-    name: 'Dodecahedron with gestures',
+    name: 'Dodecahedron With Gestures',
     description: 'Interactive dodecahedron with gestures',
     component: DodecahedronWithGestures
+  },
+  {
+    id: 'torus-cube-view',
+    name: 'Torus Cube View',
+    description: 'Interactive torus with cube view',
+    component: TorusCubeView
   }
-
 ];
 
 export default function App() {
-  const [selectedExampleName, setSelectedExample] = useState<ExampleComponent>('dodecahedron');
+  const [selectedExampleName, setSelectedExample] = useState<ExampleComponent>('torus-cube-view');
 
   const selectedExample = examples.find((example) => example.id === selectedExampleName);
   const CurrentComponent = selectedExample?.component || RotatingCubes;

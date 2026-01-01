@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { Mesh } from 'three';
 import { Canvas } from '@react-three/fiber';
 import { useDrag } from '@use-gesture/react';
-import '../../App.css';
+import '../App.css';
 
 export interface DodecahedronProps {
   color?: string;

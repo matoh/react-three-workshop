@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useRef, useState } from 'react';
 import { Mesh } from 'three';
 import { Canvas } from '@react-three/fiber';
-import '../../App.css';
+import '../App.css';
 
 export interface CubeProps {
   position: [number, number, number];
