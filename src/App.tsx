@@ -2,8 +2,9 @@ import { useState } from 'react';
 import RotatingCubes from './components/simple/RotatingCubes';
 import SimpleSquare from './components/simple/SimpleSquare';
 import './App.css';
+import DodecahedronWithGestures from './components/simple/DodecahedronWithGestures';
 
-type ExampleComponent = 'rotating-cubes' | 'simple-square';
+type ExampleComponent = 'rotating-cubes' | 'simple-square' | 'dodecahedron';
 
 interface Example {
   id: ExampleComponent;
@@ -24,12 +25,18 @@ const examples: Example[] = [
     name: 'Rotating Cubes',
     description: 'Rotating cubes with hover effects',
     component: RotatingCubes
+  },
+  {
+    id: 'dodecahedron',
+    name: 'Dodecahedron with gestures',
+    description: 'Interactive dodecahedron with gestures',
+    component: DodecahedronWithGestures
   }
 
 ];
 
 export default function App() {
-  const [selectedExampleName, setSelectedExample] = useState<ExampleComponent>('rotating-cubes');
+  const [selectedExampleName, setSelectedExample] = useState<ExampleComponent>('dodecahedron');
 
   const selectedExample = examples.find((example) => example.id === selectedExampleName);
   const CurrentComponent = selectedExample?.component || RotatingCubes;

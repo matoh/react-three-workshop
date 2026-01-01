@@ -22,7 +22,7 @@ export function Cube({ position, color = 'white' }: CubeProps) {
       scale={hovered ? 1.5 : 1}
       onPointerOut={() => setHover(false)}
     >
-      <boxGeometry args={[1.5, 1.5, 1.5]} />
+      <boxGeometry args={[1, 1, 1]} />
       <meshPhongMaterial color={color} />
     </mesh>
   );
@@ -34,7 +34,7 @@ export default function RotatingCubes() {
   const [directionalLightActivated, setDirectionalLight] = useState(true);
 
   return (
-    <div className='rotating-cubes-container'>
+    <>
       <div className='canvas-controls'>
         <button className={`control-button ${pointLightActivated ? 'active' : ''}`} onClick={() => setPointLight(!pointLightActivated)}>
           Point light
@@ -53,12 +53,12 @@ export default function RotatingCubes() {
         </button>
       </div>
       <Canvas>
-        <Cube position={[-2, 0, 0]} color='hotpink' />
-        <Cube position={[2, 0, 0]} color='gold' />
+        <Cube position={[-1.5, 0, 0]} color='hotpink' />
+        <Cube position={[1.5, 0, 0]} color='gold' />
         {ambiendLightActivated && <ambientLight intensity={20} />}
-        {pointLightActivated && <pointLight position={[2, 0, 1]} color='green' />}
+        {pointLightActivated && <pointLight position={[1.5, 0, 1]} color='green' />}
         {directionalLightActivated && <directionalLight position={[0, 0, 1]} color='white' />}
       </Canvas>
-    </div>
+    </>
   );
 }
