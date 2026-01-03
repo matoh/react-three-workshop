@@ -4,8 +4,9 @@ import SimpleSquare from './components/SimpleSquare';
 import './App.css';
 import DodecahedronWithGestures from './components/DodecahedronWithGestures';
 import TorusCubeView from './components/TorusCubeView';
+import InfiniteCanvasWithObjects from './components/InfiniteCanvasWithObjects';
 
-type ExampleComponent = 'rotating-cubes' | 'simple-square' | 'dodecahedron' | 'torus-cube-view';
+type ExampleComponent = 'rotating-cubes' | 'simple-square' | 'dodecahedron' | 'torus-cube-view' | 'interactive-3d-canvas-with-objects';
 
 interface Example {
   id: ExampleComponent;
@@ -38,12 +39,17 @@ const examples: Example[] = [
     name: 'Torus Cube View',
     description: 'Interactive torus with cube view',
     component: TorusCubeView
+  },
+  {
+    id: 'interactive-3d-canvas-with-objects',
+    name: 'Interactive 3D Canvas With Objects',
+    description: 'Interactive 3D canvas: place shapes and draw lines',
+    component: InfiniteCanvasWithObjects
   }
 ];
 
 export default function App() {
-  const [selectedExampleName, setSelectedExample] = useState<ExampleComponent>('torus-cube-view');
-
+  const [selectedExampleName, setSelectedExample] = useState<ExampleComponent>('interactive-3d-canvas-with-objects');
   const selectedExample = examples.find((example) => example.id === selectedExampleName);
   const CurrentComponent = selectedExample?.component || RotatingCubes;
 
