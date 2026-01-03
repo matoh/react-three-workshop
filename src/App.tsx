@@ -4,7 +4,7 @@ import SimpleSquare from './components/SimpleSquare';
 import './App.css';
 import DodecahedronWithGestures from './components/DodecahedronWithGestures';
 import TorusCubeView from './components/TorusCubeView';
-import InfiniteCanvasWithObjects from './components/InfiniteCanvasWithObjects';
+import InteractiveCanvasWithObjects from './components/InteractiveCanvasWithObjects';
 
 type ExampleComponent = 'rotating-cubes' | 'simple-square' | 'dodecahedron' | 'torus-cube-view' | 'interactive-3d-canvas-with-objects';
 
@@ -44,7 +44,7 @@ const examples: Example[] = [
     id: 'interactive-3d-canvas-with-objects',
     name: 'Interactive 3D Canvas With Objects',
     description: 'Interactive 3D canvas: place shapes and draw lines',
-    component: InfiniteCanvasWithObjects
+    component: InteractiveCanvasWithObjects
   }
 ];
 

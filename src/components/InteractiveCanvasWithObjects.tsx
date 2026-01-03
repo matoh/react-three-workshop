@@ -2,10 +2,10 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { useState, useRef, useMemo, useEffect } from 'react';
-import { Mesh, BufferGeometry, Float32BufferAttribute, Uint16BufferAttribute, Vector3, CatmullRomCurve3, TubeGeometry } from 'three';
+import { Mesh, Vector3, CatmullRomCurve3, TubeGeometry } from 'three';
 import '../App.css';
 
-type ObjectType = 'triangle' | 'cube' | 'sphere' | 'star' | 'torus';
+type ObjectType = 'triangle' | 'cube' | 'sphere' | 'torus';
 
 interface PlacedObject {
   id: string;
@@ -19,8 +19,8 @@ interface DrawnLine {
   thickness: number;
 }
 
-const objectTypes: ObjectType[] = ['triangle', 'cube', 'sphere', 'star', 'torus'];
-const objectIcons: Record<ObjectType, string> = { triangle: '▲', cube: '■', sphere: '●', star: '★', torus: '◯' };
+const objectTypes: ObjectType[] = ['triangle', 'cube', 'sphere', 'torus'];
+const objectIcons: Record<ObjectType, string> = { triangle: '▲', cube: '■', sphere: '●', torus: '◯' };
 
 function getColorFromPosition(position: [number, number, number]): string {
   const hash = position[0] * 1000 + position[1] * 100 + position[2] * 10;
@@ -29,8 +29,10 @@ function getColorFromPosition(position: [number, number, number]): string {
 
 function RotatingMesh({ children, position }: { children: React.ReactNode; position: [number, number, number] }) {
   const meshRef = useRef<Mesh>(null);
-  useFrame(() => {
-    if (meshRef.current) meshRef.current.rotation.y += 0.01;
+  useFrame((_, delta) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.x += delta;
+    }
   });
   return (
     <mesh ref={meshRef} position={position}>
@@ -40,62 +42,9 @@ function RotatingMesh({ children, position }: { children: React.ReactNode; posit
   );
 }
 
-function StarMesh({ position }: { position: [number, number, number] }) {
-  const meshRef = useRef<Mesh>(null);
-  const geometry = useMemo(() => {
-    const geo = new BufferGeometry();
-    const vertices: number[] = [];
-    const indices: number[] = [];
-    const outerRadius = 0.6;
-    const innerRadius = 0.3;
-    const points = 5;
-    const depth = 0.3;
-
-    for (let layer = 0; layer < 2; layer++) {
-      const z = layer === 0 ? depth / 2 : -depth / 2;
-      for (let i = 0; i < points * 2; i++) {
-        const angle = (i * Math.PI) / points - Math.PI / 2;
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        vertices.push(Math.cos(angle) * radius, Math.sin(angle) * radius, z);
-      }
-    }
-
-    const bottomStart = points * 2;
-    for (let i = 0; i < points * 2; i++) {
-      const next = (i + 1) % (points * 2);
-      indices.push(0, i, next, bottomStart, bottomStart + next, bottomStart + i);
-      indices.push(i, bottomStart + i, next, next, bottomStart + i, bottomStart + next);
-    }
-
-    geo.setAttribute('position', new Float32BufferAttribute(new Float32Array(vertices), 3));
-    geo.setIndex(new Uint16BufferAttribute(new Uint16Array(indices), 1));
-    geo.computeVertexNormals();
-    return geo;
-  }, []);
-
-  useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.01;
-      meshRef.current.rotation.z += 0.005;
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} position={position} geometry={geometry}>
-      <meshStandardMaterial color={useMemo(() => getColorFromPosition(position), [position])} />
-    </mesh>
-  );
-}
-
 function ObjectRenderer({ type, position }: { type: ObjectType; position: [number, number, number] }) {
-  if (type === 'triangle')
-    return (
-      <RotatingMesh position={position}>
-        <tetrahedronGeometry args={[0.8]} />
-      </RotatingMesh>
-    );
-  if (type === 'star') return <StarMesh position={position} />;
   const geometries = {
+    triangle: <tetrahedronGeometry args={[0.8]} />,
     cube: <boxGeometry args={[1, 1, 1]} />,
     sphere: <sphereGeometry args={[0.5, 32, 32]} />,
     torus: <torusGeometry args={[0.5, 0.25, 16, 100]} />
@@ -112,17 +61,20 @@ function KeyboardControls() {
     const handleKey = (e: KeyboardEvent, down: boolean) => {
       if (arrows.includes(e.key)) {
         e.preventDefault();
-        if (down) keysPressed.current.add(e.key);
-        else keysPressed.current.delete(e.key);
+        if (down) {
+          keysPressed.current.add(e.key);
+        } else {
+          keysPressed.current.delete(e.key);
+        }
       }
     };
-    const down = (e: KeyboardEvent) => handleKey(e, true);
-    const up = (e: KeyboardEvent) => handleKey(e, false);
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
+    const downHandler = (e: KeyboardEvent) => handleKey(e, true);
+    const upHandler = (e: KeyboardEvent) => handleKey(e, false);
+    window.addEventListener('keydown', downHandler);
+    window.addEventListener('keyup', upHandler);
     return () => {
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
+      window.removeEventListener('keydown', downHandler);
+      window.removeEventListener('keyup', upHandler);
     };
   }, []);
 
@@ -130,11 +82,21 @@ function KeyboardControls() {
     const move = new Vector3();
     const speed = 20 * delta;
     const keys = keysPressed.current;
-    if (keys.has('ArrowUp')) move.y += speed;
-    if (keys.has('ArrowDown')) move.y -= speed;
-    if (keys.has('ArrowLeft')) move.x -= speed;
-    if (keys.has('ArrowRight')) move.x += speed;
-    if (move.length() > 0) camera.position.add(move);
+    if (keys.has('ArrowUp')) {
+      move.y += speed;
+    }
+    if (keys.has('ArrowDown')) {
+      move.y -= speed;
+    }
+    if (keys.has('ArrowLeft')) {
+      move.x -= speed;
+    }
+    if (keys.has('ArrowRight')) {
+      move.x += speed;
+    }
+    if (move.length() > 0) {
+      camera.position.add(move);
+    }
   });
 
   return null;
@@ -142,16 +104,20 @@ function KeyboardControls() {
 
 function LineRenderer({ line }: { line: DrawnLine }) {
   const geometry = useMemo(() => {
-    if (line.points.length < 2) return null;
+    if (line.points.length < 2) {
+      return null;
+    }
     return new TubeGeometry(
-      new CatmullRomCurve3(line.points.map((p) => new Vector3(...p))),
+      new CatmullRomCurve3(line.points.map((point) => new Vector3(...point))),
       Math.max(32, line.points.length * 2),
       line.thickness / 50,
       8,
       false
     );
   }, [line.points, line.thickness]);
-  if (!geometry) return null;
+  if (!geometry) {
+    return null;
+  }
   return (
     <mesh geometry={geometry}>
       <meshStandardMaterial color='#ff0000' />
@@ -190,34 +156,36 @@ function CanvasContent({
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
-        onPointerDown={(e) => {
+        onPointerDown={(event) => {
           if (isDrawing) {
-            e.stopPropagation();
+            event.stopPropagation();
             setIsDrawingActive(true);
-            onDrawingStart(getPoint(e));
+            onDrawingStart(getPoint(event));
           } else if (selectedObjectType) {
-            clickStartRef.current = { point: e.point.clone(), time: Date.now() };
+            clickStartRef.current = { point: event.point.clone(), time: Date.now() };
           }
         }}
-        onClick={(e) => {
+        onClick={(event) => {
           if (!isDrawing && !isDrawingActive && selectedObjectType && clickStartRef.current) {
-            const moved = clickStartRef.current.point.distanceTo(e.point) > 0.1;
+            const moved = clickStartRef.current.point.distanceTo(event.point) > 0.1;
             const timeDiff = Date.now() - clickStartRef.current.time;
             if (!moved && timeDiff < 300) {
-              e.stopPropagation();
-              onPlaceObject(getPoint(e), selectedObjectType);
+              event.stopPropagation();
+              onPlaceObject(getPoint(event), selectedObjectType);
             }
             clickStartRef.current = null;
           }
         }}
-        onPointerMove={(e) => {
+        onPointerMove={(event) => {
           if (isDrawing && isDrawingActive) {
-            e.stopPropagation();
-            onDrawingMove(getPoint(e));
+            event.stopPropagation();
+            onDrawingMove(getPoint(event));
           } else if (clickStartRef.current && !isDrawing) {
             // Clear click tracking if user moved during camera pan
-            const moved = clickStartRef.current.point.distanceTo(e.point) > 0.1;
-            if (moved) clickStartRef.current = null;
+            const moved = clickStartRef.current.point.distanceTo(event.point) > 0.1;
+            if (moved) {
+              clickStartRef.current = null;
+            }
           }
         }}
         onPointerUp={() => {
@@ -249,7 +217,7 @@ function CanvasContent({
   );
 }
 
-export default function InfiniteCanvasWithObjects() {
+export default function Interactive3DCanvasWithObjects() {
   const [selectedObjectType, setSelectedObjectType] = useState<ObjectType | null>(null);
   const [placedObjects, setPlacedObjects] = useState<PlacedObject[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -260,17 +228,17 @@ export default function InfiniteCanvasWithObjects() {
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <div className='canvas-controls'>
-        {objectTypes.map((type) => (
+        {objectTypes.map((objectType) => (
           <button
-            key={type}
-            className={`control-button ${selectedObjectType === type ? 'active' : ''}`}
+            key={objectType}
+            className={`control-button ${selectedObjectType === objectType ? 'active' : ''}`}
             onClick={() => {
-              setSelectedObjectType((prev) => (prev === type ? null : type));
+              setSelectedObjectType((currentSelectedObjectType) => (currentSelectedObjectType === objectType ? null : objectType));
               setIsDrawing(false);
             }}
           >
-            <span style={{ fontSize: '1.2em', marginRight: '8px' }}>{objectIcons[type]}</span>
-            {type.charAt(0).toUpperCase() + type.slice(1)}
+            <span style={{ fontSize: '1.2em', marginRight: '8px' }}>{objectIcons[objectType]}</span>
+            {objectType.charAt(0).toUpperCase() + objectType.slice(1)}
           </button>
         ))}
         <button
@@ -301,7 +269,7 @@ export default function InfiniteCanvasWithObjects() {
               min='1'
               max='5'
               value={lineThickness}
-              onChange={(e) => setLineThickness(Number(e.target.value))}
+              onChange={(event) => setLineThickness(Number(event.target.value))}
               style={{ width: '100px' }}
             />
             <span style={{ fontSize: '12px', fontWeight: '600', color: '#667eea', minWidth: '20px' }}>{lineThickness}</span>
@@ -326,8 +294,8 @@ export default function InfiniteCanvasWithObjects() {
           selectedObjectType={selectedObjectType}
           placedObjects={placedObjects}
           onPlaceObject={(position, type) =>
-            setPlacedObjects((prev) => [
-              ...prev,
+            setPlacedObjects((currentPlacedObjects) => [
+              ...currentPlacedObjects,
               { id: `obj-${Date.now()}-${position[0] * 1000 + position[1] * 100 + position[2]}`, type, position }
             ])
           }
@@ -335,16 +303,17 @@ export default function InfiniteCanvasWithObjects() {
           onDrawingStart={(point) => {
             const newLine: DrawnLine = { id: `line-${Date.now()}`, points: [point], thickness: lineThickness };
             currentLineRef.current = newLine;
-            setDrawnLines((prev) => [...prev, newLine]);
+            setDrawnLines((currentDrawnLines) => [...currentDrawnLines, newLine]);
           }}
           onDrawingMove={(point) => {
             if (!currentLineRef.current) return;
             currentLineRef.current.points.push(point);
-            setDrawnLines((prev) => {
-              const updated = [...prev];
+            setDrawnLines((currentDrawnLines) => {
+              const updated = [...currentDrawnLines];
               const index = updated.findIndex((line) => line.id === currentLineRef.current?.id);
-              if (index !== -1 && currentLineRef.current)
+              if (index !== -1 && currentLineRef.current) {
                 updated[index] = { ...currentLineRef.current, points: [...currentLineRef.current.points] };
+              }
               return updated;
             });
           }}
